@@ -27,11 +27,11 @@ class Tag extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('name', 'required'),
-			array('frequency', 'numerical', 'integerOnly'=>true),
-			array('name', 'length', 'max'=>128),
+			array('frequency', 'numerical', 'integerOnly' => true),
+			array('name', 'length', 'max' => 128),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, name, frequency', 'safe', 'on'=>'search'),
+			array('id, name, frequency', 'safe', 'on' => 'search'),
 		);
 	}
 
@@ -42,8 +42,7 @@ class Tag extends CActiveRecord
 	{
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
-		return array(
-		);
+		return array();
 	}
 
 	/**
@@ -74,14 +73,14 @@ class Tag extends CActiveRecord
 	{
 		// @todo Please modify the following code to remove attributes that should not be searched.
 
-		$criteria=new CDbCriteria;
+		$criteria = new CDbCriteria;
 
-		$criteria->compare('id',$this->id);
-		$criteria->compare('name',$this->name,true);
-		$criteria->compare('frequency',$this->frequency);
+		$criteria->compare('id', $this->id);
+		$criteria->compare('name', $this->name, true);
+		$criteria->compare('frequency', $this->frequency);
 
 		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
+			'criteria' => $criteria,
 		));
 	}
 
@@ -91,8 +90,26 @@ class Tag extends CActiveRecord
 	 * @param string $className active record class name.
 	 * @return Tag the static model class
 	 */
-	public static function model($className=__CLASS__)
+	public static function model($className = __CLASS__)
 	{
 		return parent::model($className);
+	}
+
+	public static function string2array($tags)
+	{
+		return preg_split('/\s*,\s*/', trim($tags), -1, PREG_SPLIT_NO_EMPTY);
+	}
+
+	public static function array2string($tags)
+	{
+		return implode(', ', $tags);
+	}
+
+	public function updateFrequency($oldTags, $newTags)
+	{
+		$oldTags = self::string2array($oldTags);
+		$newTags = self::string2array($newTags);
+		$this->addTags(array_values(array_diff($newTags, $oldTags)));
+		$this->removeTags(array_values(array_diff($oldTags, $newTags)));
 	}
 }
